@@ -1,13 +1,14 @@
 #!/bin/bash
 
+# Create main directory and subdirectories
 mkdir -p submission_reminder_app
-
 mkdir -p submission_reminder_app/app
 mkdir -p submission_reminder_app/modules
 mkdir -p submission_reminder_app/assets
 mkdir -p submission_reminder_app/config
 
-cat <<EOL > submission_reminder_app/app/reminder.sh 
+# Create and populate reminder.sh
+cat <<EOL > submission_reminder_app/app/reminder.sh
 #!/bin/bash
 
 source ./config/config.env
@@ -23,6 +24,7 @@ check_submissions \$submissions_file
 EOL
 chmod u+x submission_reminder_app/app/reminder.sh
 
+# Create and populate functions.sh
 cat <<EOL > submission_reminder_app/modules/functions.sh
 #!/bin/bash
 
@@ -33,35 +35,38 @@ function check_submissions {
 
     # Skip the header and iterate through the lines
     while IFS=, read -r student assignment status; do
-        # Remove leading and trailing whitespace
         student=\$(echo "\$student" | xargs)
         assignment=\$(echo "\$assignment" | xargs)
         status=\$(echo "\$status" | xargs)
 
-        # Check if assignment matches and status is 'not submitted'
         if [[ "\$assignment" == "\$ASSIGNMENT" && "\$status" == "not submitted" ]]; then
             echo "Reminder: \$student has not submitted the \$ASSIGNMENT assignment!"
         fi
-    done < <(tail -n +2 "\$submissions_file") # Skip the header
+    done < <(tail -n +2 "\$submissions_file")
 }
 EOL
 chmod u+x submission_reminder_app/modules/functions.sh
 
+# Copy the original submissions.txt if it exists
 cp submissions.txt submission_reminder_app/assets/submissions.txt
 
+# Append new student records to submissions.txt
 cat <<EOL >> submission_reminder_app/assets/submissions.txt
-lebron, Shell Navigation, not submitted
-patrick, Shell Navigation, submitted,
-curry, Shell Navigation, not submitted
-Kd, Shell Navigation, submitted
-jordan, Shell Navigation, submitted
+LeBron, Shell Navigation, not submitted
+KD, Shell Navigation, not submitted
+Curry, Shell Navigation, not submitted
+Jordan, Shell Navigation, not submitted
+Sam, Shell Navigation, not submitted
 EOL
 
+# Create and populate config.env
 cat <<EOL > submission_reminder_app/config/config.env
 # This is the config file
 ASSIGNMENT="Shell Navigation"
 DAYS_REMAINING=2
 EOL
+
+# Create and populate startup.sh
 cat <<EOL > submission_reminder_app/startup.sh
 #!/bin/bash
 
